@@ -139,17 +139,17 @@ def target_endpoint(lat, long, target_label):
             mavDevice.target_system, mavDevice.target_component)
 
         # pulls altitude from mavlink
-        mavAlt = mavDevice.recv_match(type='ALT', blocking=True)
-        altitude = mavAlt.decode()
+       #mavAlt = mavDevice.recv_match(type='ALT', blocking=True)
+       #altitude = mavAlt.decode()
 
-        mavRoll = mavDevice.recv_match(type='RLL', blocking=True)
-        rollAngle = mavRoll.decode()
+       #mavRoll = mavDevice.recv_match(type='RLL', blocking=True)
+       #rollAngle = mavRoll.decode()
 
-        mavPitch = mavDevice.recv_match(type='PTCH', blocking=True)
-        theta = mavPitch.decode()
+       #mavPitch = mavDevice.recv_match(type='PTCH', blocking=True)
+       #theta = mavPitch.decode()
 
-        mavComp = mavDevice.recv_match(type='COMPASS', blocking=True)
-        azimuth = mavComp.decode()
+       #mavComp = mavDevice.recv_match(type='COMPASS', blocking=True)
+       #azimuth = mavComp.decode()
         # dummy code
         """
         altitude = 416
@@ -163,7 +163,7 @@ def target_endpoint(lat, long, target_label):
         latitude, longitude, targetX, targetY = response["data"]["latitude"], response[
             "data"]["longitude"], response["data"]["target_X"], response["data"]["target_Y"]
         azimuth = math.Float(azimuth) + 90
-        setCamera(21, 1280, 1024, 0, 0, 0, 0, 0, 1, "cobb.tif")
+        setCamera(21, 1280, 1024, 0, 0, 0, 0, 0, 1, "lakeland.tif")
         # OpenAthena stuff(use response payload to compute below)
         tarLat, tarLong, alt, terAlt = calcCoord(
             latitude, longitude, altitude, azimuth, theta, targetX, targetY, rollAngle)

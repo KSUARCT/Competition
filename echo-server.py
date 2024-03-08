@@ -6,7 +6,7 @@ import json
 import random
 import subprocess
 import serial
-
+from color_circles import *
 from ublox_gps import UbloxGps
 
 HOST = "0.0.0.0"  # Standard loopback interface address (localhost)
@@ -34,10 +34,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:  # initialize TCP S
                 case "target_color":
                     # Store target color
                     TARGET_COLOR = request_json["payload"]["color"]
-
+                    target_pixelX, target_pixelY = color_circles(TARGET_COLOR)
                     # LOAD AI DATA HERE
-                    target_pixelX = 2000
-                    target_pixelY = 1125
+                    #target_pixelX = 2000
+                    #target_pixelY = 1125
 
                     # Get current coordinates after finding target
                     geo = gps.geo_coords()

@@ -89,7 +89,7 @@ def color_circles(target_color):
                 hue_value = pixel_center[0]  # only take first value in the
                 # tuple which is the hue value
                 sat_value = pixel_center[1]  # saturation values
-                val_value = pixel_center[2]  # value (V in HSV)
+                            val_value = pixel_center[2]  # value (V in HSV)
 
                 # cv2.putText(output, 'CENTER',(cx, cy), 0, 1, (255, 0, 0), 2)
 
@@ -120,7 +120,7 @@ def color_circles(target_color):
                     # get pixels for GPS
                     target_x = x
                     target_y = y
-
+                    return(target_x, target_y)
                     print('Target is detected')
 
                 # time.sleep(0.5)
