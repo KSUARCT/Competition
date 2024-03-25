@@ -10,7 +10,7 @@ import math
 from pymavlink import mavutil
 from openAthena import *
 
-mavDevice = mavutil.mavlink_connection('udp:COM6:9600')
+# mavDevice = mavutil.mavlink_connection('udp:COM6:9600')
 
 # generate Lat/Long Frame
 
@@ -130,26 +130,26 @@ def target_endpoint(lat, long, target_label):
         entry.delete("0", tk.END)  # Clear existing text
 
         # sends request for parameters
-        param_dump = requests.get("http://localhost:56781/mavlink/")
-        parameters = json.loads(param_dump)
-        altitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"][
-            "msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
+       # param_dump = requests.get("http://localhost:56781/mavlink/")
+       # parameters = json.loads(param_dump)
+       # altitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"][
+       #    "msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
 
-        mavDevice.mav.param_request_list_send(
-            mavDevice.target_system, mavDevice.target_component)
+       # mavDevice.mav.param_request_list_send(
+        # mavDevice.target_system, mavDevice.target_component)
 
         # pulls altitude from mavlink
-       #mavAlt = mavDevice.recv_match(type='ALT', blocking=True)
-       #altitude = mavAlt.decode()
+       # mavAlt = mavDevice.recv_match(type='ALT', blocking=True)
+       # altitude = mavAlt.decode()
 
-       #mavRoll = mavDevice.recv_match(type='RLL', blocking=True)
-       #rollAngle = mavRoll.decode()
+       # mavRoll = mavDevice.recv_match(type='RLL', blocking=True)
+       # rollAngle = mavRoll.decode()
 
-       #mavPitch = mavDevice.recv_match(type='PTCH', blocking=True)
-       #theta = mavPitch.decode()
+       # mavPitch = mavDevice.recv_match(type='PTCH', blocking=True)
+       # theta = mavPitch.decode()
 
-       #mavComp = mavDevice.recv_match(type='COMPASS', blocking=True)
-       #azimuth = mavComp.decode()
+       # mavComp = mavDevice.recv_match(type='COMPASS', blocking=True)
+       # azimuth = mavComp.decode()
         # dummy code
         """
         altitude = 416
@@ -159,11 +159,18 @@ def target_endpoint(lat, long, target_label):
         """
 
         # print(altitude + ' ' + rollAngle + ' ' + theta + ' ' + azimuth)
+       # param_dump = requests.get("http://localhost:56781/mavlink/")
+       # parameters = json.loads(param_dump)
+       # altitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"][
+       #    "msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
 
-        latitude, longitude, targetX, targetY = response["data"]["latitude"], response[
-            "data"]["longitude"], response["data"]["target_X"], response["data"]["target_Y"]
+        latitude, longitude, targetX, targetY, altitude, azimuth, theta, rollAngle = response["data"]["latitude"], response[
+            "data"]["longitude"], response["data"]["target_X"], response["data"]["target_Y"], response["data"]["altitude"], response["data"]["azimuth"], response["data"]["theta"], response["data"]["rollAngle"]
+        azimuth = math.degrees(azimuth)
+        theta - math.degrees(theta)
+        altitude = altitude / .3048 % 1
         azimuth = math.Float(azimuth) + 90
-        setCamera(21, 1280, 1024, 0, 0, 0, 0, 0, 1, "lakeland.tif")
+        setCamera(25, 1280, 1024, 0, 0, 0, 0, 0, 1, "lakeland.tif")
         # OpenAthena stuff(use response payload to compute below)
         tarLat, tarLong, alt, terAlt = calcCoord(
             latitude, longitude, altitude, azimuth, theta, targetX, targetY, rollAngle)

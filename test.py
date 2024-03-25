@@ -4,7 +4,7 @@ vid = cv2.VideoCapture(0)
 while (True):
 
     ret, frame = vid.read()
-    cv2.imshow('frame', frame)
+   # cv2.imshow('frame', frame)
     colorDetect = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     red_lower = np.array([0, 100, 100], dtype="uint8")
     red_higher = np.array([30, 255, 255], dtype="uint8")
@@ -20,6 +20,7 @@ while (True):
     magenta_higher = np.array([179, 255, 255], dtype="uint8")
     white_lower = np.array([0, 0, 100], dtype="uint8")
     white_higher = np.array([0, 0, 255], dtype="uint8")
+    cv2.imshow('frame', colorDetect)
     red = cv2.inRange(colorDetect, red_lower, red_higher)
     if (cv2.countNonZero(red) > 10):
         gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -28,6 +29,10 @@ while (True):
         # calculate moments of binary image
         M = cv2.moments(thresh)
         # calculate x,y coordinate of center
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-        print(cX, cY)
+        try:
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+        except:
+            pass
+        else:
+            print(cX, cY)
