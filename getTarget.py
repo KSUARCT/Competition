@@ -13,14 +13,14 @@ import os
 import time
 import matplotlib.pyplot as plt
 # from osgeo import gdal # Lots of good GeoINT stuff
-from geotiff import GeoTiff # alternative to gdal for parsing GeoTiff .tif files
-import mgrs # Military Grid ref converter
+from geotiff import GeoTiff  # alternative to gdal for parsing GeoTiff .tif files
+import mgrs  # Military Grid ref converter
 import math
 from math import sin, asin, cos, atan2, sqrt
 import numpy as np
-import decimal # more float precision with Decimal objects
+import decimal  # more float precision with Decimal objects
 
-import config # OpenAthena global variables
+import config  # OpenAthena global variables
 
 import parseGeoTIFF
 # from WGS84_SK42_Translator import Translator as converter # rafasaurus' SK42 coord translator
@@ -30,16 +30,18 @@ import parseGeoTIFF
        data entry is done manually
        implementation in resolveTarget function
 """
+
+
 def getTarget():
     print("Hello World!")
     print("I'm getTarget.py")
 
     if ("--version" in sys.argv or "-v" in sys.argv or "-V" in sys.argv or
-        "V" in sys.argv or "version" in sys.argv):
+            "V" in sys.argv or "version" in sys.argv):
         #
         sys.exit(config.version)
     elif ("--help" in sys.argv or "-h" in sys.argv or
-        "-H" in sys.argv or "H" in sys.argv or "help" in sys.argv):
+          "-H" in sys.argv or "H" in sys.argv or "help" in sys.argv):
         #
         outstr = "usage: getTarget.py [Rome-30m-DEM.tif]\n\ngetTarget.py may take a GeoTIFF DEM (.tif) and manual sensor metadata as input,\nprovides a target match location as output (if possible)"
         sys.exit(outstr)
@@ -47,14 +49,18 @@ def getTarget():
         ext = sys.argv[1].split('.')[-1].lower()
         if ext != "tif":
             if ext in ["dt0", "dt1", "dt2", "dt3", "dt4", "dt5"]:
-                print(f'FILE FORMAT ERROR: DTED format ".{ext}" not supported. Please use a GeoTIFF ".tif" file!')
-            outstr = f'FATAL ERROR: got argument: {sys.argv[1]}, expected GeoTIFF ".tif" DEM!'
+                print(f'FILE FORMAT ERROR: DTED format ".{
+                      ext}" not supported. Please use a GeoTIFF ".tif" file!')
+            outstr = f'FATAL ERROR: got argument: {
+                sys.argv[1]}, expected GeoTIFF ".tif" DEM!'
             sys.exit(outstr)
         else:
             filename = sys.argv[1].strip()
-            elevationData, (x0, dx, dxdy, y0, dydx, dy) = parseGeoTIFF.getGeoFileFromString(filename)
+            elevationData, (x0, dx, dxdy, y0, dydx,
+                            dy) = parseGeoTIFF.getGeoFileFromString(filename)
     else:
-        elevationData, (x0, dx, dxdy, y0, dydx, dy) = parseGeoTIFF.getGeoFileFromUser()
+        elevationData, (x0, dx, dxdy, y0, dydx,
+                        dy) = parseGeoTIFF.getGeoFileFromUser()
 
     print("The shape of the elevation data is: ", elevationData.shape)
     print("The raw Elevation data is: ")
@@ -68,29 +74,37 @@ def getTarget():
     # # had to remove this check switching from gdal -> geotiff libraries :(
     # ensureValidGeotiff(dxdy, dydx)
 
-    print(f'x0: {round(x0,4)} dx: {round(dx,9)} ncols: {round(ncols,4)} x1: {round(x1,4)}')
-    print(f'y0: {round(y0,4)} dy: {round(dy,9)} nrows: {round(nrows,4)} y1: {round(y1,4)}\n\n')
+    print(f'x0: {round(x0, 4)} dx: {round(dx, 9)} ncols: {
+          round(ncols, 4)} x1: {round(x1, 4)}')
+    print(f'y0: {round(y0, 4)} dy: {round(dy, 9)} nrows: {
+          round(nrows, 4)} y1: {round(y1, 4)}\n\n')
 
     xParams = (x0, x1, dx, ncols)
     yParams = (y0, y1, dy, nrows)
 
     # note that by convention, coord pairs are usually (lat,long)
     #     i.e. (y,x)
-    y = inputNumber("Please enter aircraft latitude in (+/-) decimal form: ", y1, y0)
-    x = inputNumber("Please enter aircraft longitude in (+/-) decimal form: ", x0, x1)
-    z = inputNumber("Please enter altitude (meters above WGS84 ellipsoid) in decimal form: ", -423, 8848)
-    azimuth = inputNumber("Please enter camera azimuth (0 is north) in decimal form (degrees): ", -180, 360)
+    y = inputNumber(
+        "Please enter aircraft latitude in (+/-) decimal form: ", y1, y0)
+    x = inputNumber(
+        "Please enter aircraft longitude in (+/-) decimal form: ", x0, x1)
+    z = inputNumber(
+        "Please enter altitude (meters above WGS84 ellipsoid) in decimal form: ", -423, 8848)
+    azimuth = inputNumber(
+        "Please enter camera azimuth (0 is north) in decimal form (degrees): ", -180, 360)
     if (azimuth < 0):
 
         print(f"\nWarning: using value: {azimuth + 360}\n")
 
-    theta = inputNumber("Please enter angle of declanation (degrees down from forward) in decimal form: ", -90, 90)
+    theta = inputNumber(
+        "Please enter angle of declanation (degrees down from forward) in decimal form: ", -90, 90)
     if (theta < 0):
 
         print(f"\nWarning: using value: {abs(theta)}\n")
 
     # most of the complex logic is done here
-    target = resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams)
+    target = resolveTarget(y, x, z, azimuth, theta,
+                           elevationData, xParams, yParams)
 
     if target is None:
         print(f'\n ERROR: bad calculation!\n')
@@ -105,20 +119,23 @@ def getTarget():
         print(f'Approximate alt (terrain): {round(terrainAlt)}\n')
 
         print('Target:')
-        print(f'WGS84 (lat, lon): {round(tarY, 6)}, {round(tarX, 6)} Alt: {math.ceil(tarZ)}')
-        print(f'Google Maps: https://maps.google.com/?q={round(tarY,6)},{round(tarX,6)}\n')
+        print(f'WGS84 (lat, lon): {round(tarY, 6)}, {
+              round(tarX, 6)} Alt: {math.ceil(tarZ)}')
+        print(
+            f'Google Maps: https://maps.google.com/?q={round(tarY, 6)},{round(tarX, 6)}\n')
         # en.wikipedia.org/wiki/Military_Grid_Reference_System
         # via github.com/hobuinc/mgrs
         m = mgrs.MGRS()
         targetMGRS = m.toMGRS(tarY, tarX)
-        targetMGRS10m = m.toMGRS(tarY,tarX, MGRSPrecision=4)
+        targetMGRS10m = m.toMGRS(tarY, tarX, MGRSPrecision=4)
         targetMGRS100m = m.toMGRS(tarY, tarX, MGRSPrecision=3)
         gzdEndIndex = 2
-        while(targetMGRS[gzdEndIndex].isalpha()):
+        while (targetMGRS[gzdEndIndex].isalpha()):
             gzdEndIndex += 1
         # ANSI escape sequences \033[ for underlining: stackabuse.com/how-to-print-colored-text-in-python
         if os.name != 'nt':
-            print(f'NATO MGRS: {targetMGRS[0:gzdEndIndex]}\033[4m{targetMGRS[gzdEndIndex:]}\033[0;0m Alt: \033[4m{math.ceil(tarZ)}\033[0;0m')
+            print(f'NATO MGRS: {targetMGRS[0:gzdEndIndex]}\033[4m{
+                  targetMGRS[gzdEndIndex:]}\033[0;0m Alt: \033[4m{math.ceil(tarZ)}\033[0;0m')
         else:
             print(f'NATO MGRS: {targetMGRS} Alt: {math.ceil(tarZ)}')
         print(f'MGRS 10m: {targetMGRS10m}')
@@ -143,6 +160,7 @@ def getTarget():
         # outstr = strFormatSK42GK(GK_zone, targetSK42_N_GK, targetSK42_E_GK, targetSK42Alt)
         # print(outstr)
 
+
 """handle user input of data, using message for prompt
     guaranteed to return a float in range
     will reprompt until input is valid
@@ -156,12 +174,15 @@ lowerBound : float
 uperBound : float
     the upper bound, inclusive of valid input
 """
+
+
 def inputNumber(message, lowerBound, upperBound):
     while True:
         try:
             userInput = float(input(message))
             if userInput <= lowerBound or upperBound <= userInput:
-                print(f'ERROR: input out of bounds. Lower bound is {lowerBound}, Upper bound is {upperBound}')
+                print(f'ERROR: input out of bounds. Lower bound is {
+                      lowerBound}, Upper bound is {upperBound}')
                 print("Please Try Again")
                 continue
         except ValueError:
@@ -170,6 +191,7 @@ def inputNumber(message, lowerBound, upperBound):
         else:
             return userInput
             break
+
 
 """given sensor data, returns a tuple (distance, y, x, z, terrainAlt) distance, location, and alitude(s) of target
 
@@ -208,6 +230,8 @@ yParams: tuple
     nrows is the number of datapoints per column of the dataset
 
 """
+
+
 def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
     # jpl.nasa.gov/edu/news/2016/3/16/how-many-decimals-of-pi-do-we-really-need
     decimal.getcontext().prec = 30
@@ -218,14 +242,15 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
     azimuth, theta = decimal.Decimal(azimuth), decimal.Decimal(theta)
     # convert azimuth and theta from degrees to radians
     azimuth, theta = math.radians(azimuth), math.radians(theta)
-    azimuth  = normalize(azimuth) # 0 <= azimuth < 2pi
-    theta = abs(theta) # pitch is technically neg., but we use pos.
+    azimuth = normalize(azimuth)  # 0 <= azimuth < 2pi
+    theta = abs(theta)  # pitch is technically neg., but we use pos.
 
     # check if angle is exactly (1e-09) straight downwards,
     #     if so, skip iterative search b/c target is directly
     #     below us:
     if math.isclose((math.pi / 2), theta):
-        terrainAlt = parseGeoTIFF.getAltFromLatLon(y, x, xParams, yParams, elevationData)
+        terrainAlt = parseGeoTIFF.getAltFromLatLon(
+            y, x, xParams, yParams, elevationData)
         if terrainAlt is None:
             return None
         finalDist = z - terrainAlt
@@ -233,7 +258,7 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
             print(f'\n ERROR: bad calculation!\n')
             return None
         print(f'\nWARNING: theta is exactly 90 deg, just using GPS lat/lon\n')
-        return((finalDist, y, x, None, terrainAlt))
+        return ((finalDist, y, x, None, terrainAlt))
 
     # safety check: if theta > 90 degrees (pi / 2 radians)
     # then camera is facing backwards
@@ -255,7 +280,7 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
     deltax, deltay = math.cos(direction), math.sin(direction)
     deltax, deltay = decimal.Decimal(deltax), decimal.Decimal(deltay)
 
-    deltaz = -1 * math.sin(theta) #neg because direction is downward
+    deltaz = -1 * math.sin(theta)  # neg because direction is downward
     deltaz = decimal.Decimal(deltaz)
 
     # determines by how much of travel per unit is actually horiz
@@ -276,9 +301,10 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
 
     dx = xParams[2]
 
-
-    post_spacing_meters = haversine(0, y, dx, y, z) # meters between datapoints, from degrees
-    threshold = abs(post_spacing_meters) / decimal.Decimal(8.0) # meters of acceptable distance between constructed line and datapoint. somewhat arbitrary
+    # meters between datapoints, from degrees
+    post_spacing_meters = haversine(0, y, dx, y, z)
+    # meters of acceptable distance between constructed line and datapoint. somewhat arbitrary
+    threshold = abs(post_spacing_meters) / decimal.Decimal(8.0)
 
     # meters of increment for each stepwise check (along constructed line)
     increment = decimal.Decimal(config.increment)
@@ -287,20 +313,26 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
     curY = decimal.Decimal(y)
     curX = decimal.Decimal(x)
     curZ = decimal.Decimal(z)
-    groundAlt = parseGeoTIFF.getAltFromLatLon(curY, curX, xParams, yParams, elevationData)
+    groundAlt = parseGeoTIFF.getAltFromLatLon(
+        curY, curX, xParams, yParams, elevationData)
     if groundAlt is None:
-        print(f'ERROR: resolveTarget ran out of bounds at {round(curY,4)}, {round(curX,4)}, {round(curZ,1)}m', file=sys.stderr)
+        print(f'ERROR: resolveTarget ran out of bounds at {round(curY, 4)}, {
+              round(curX, 4)}, {round(curZ, 1)}m', file=sys.stderr)
         print('ERROR: Please ensure target location is within GeoTIFF dataset bounds', file=sys.stderr)
         return None
     elif (curZ < float(groundAlt)):
-        print(f'ERROR: resolveTarget failed, bad sensor or elevation data.\nInitial drone altitude: {round(curZ)}m, terrain altitude: {groundAlt}m\nThis image is unusable.', file=sys.stderr)
+        print(f'ERROR: resolveTarget failed, bad sensor or elevation data.\nInitial drone altitude: {
+              round(curZ)}m, terrain altitude: {groundAlt}m\nThis image is unusable.', file=sys.stderr)
         return None
     altDiff = curZ - groundAlt
     while altDiff > threshold:
-        groundAlt = parseGeoTIFF.getAltFromLatLon(curY, curX, xParams, yParams, elevationData)
+        groundAlt = parseGeoTIFF.getAltFromLatLon(
+            curY, curX, xParams, yParams, elevationData)
         if groundAlt is None:
-            print(f'ERROR: resolveTarget ran out of bounds at {round(curY,4)}, {round(curX,4)}, {round(curZ,1)}m', file=sys.stderr)
-            print('ERROR: Please ensure target location is within GeoTIFF dataset bounds', file=sys.stderr)
+            print(f'ERROR: resolveTarget ran out of bounds at {round(curY, 4)}, {
+                  round(curX, 4)}, {round(curZ, 1)}m', file=sys.stderr)
+            print(
+                'ERROR: Please ensure target location is within GeoTIFF dataset bounds', file=sys.stderr)
             return None
         altDiff = curZ - groundAlt
 
@@ -308,19 +340,21 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
         # deltaz should always be negative
         curZ += deltaz
         avgAlt = (avgAlt + curZ) / 2
-        curY, curX = inverse_haversine((curY,curX), horizScalar*increment, azimuth, avgAlt)
-        #check for Out Of Bounds after each iteration
+        curY, curX = inverse_haversine(
+            (curY, curX), horizScalar*increment, azimuth, avgAlt)
+        # check for Out Of Bounds after each iteration
         if curY > y0 or curY < y1 or curX < x0 or curX > x1:
-            print(f'ERROR: resolveTarget ran out of bounds at {round(curY,4)}, {round(curX,4)}, {round(curZ,4)}m')
+            print(f'ERROR: resolveTarget ran out of bounds at {
+                  round(curY, 4)}, {round(curX, 4)}, {round(curZ, 4)}m')
             print('ERROR: Please ensure target location is within GeoTIFF dataset bounds')
             return None
         #
-        #end iteration
-    #end loop
+        # end iteration
+    # end loop
     #
-    #When the loop ends, curY, curX, and curZ are closeish to the target
-    #may be a bit biased ever so slightly long (beyond the target)
-    #this algorithm is crude,
+    # When the loop ends, curY, curX, and curZ are closeish to the target
+    # may be a bit biased ever so slightly long (beyond the target)
+    # this algorithm is crude,
     #    could use refinement
 
     finalHorizDist = abs(haversine(x, y, curX, curY, z))
@@ -328,10 +362,12 @@ def resolveTarget(y, x, z, azimuth, theta, elevationData, xParams, yParams):
     # simple pythagorean theorem
     # may be inaccurate for very very large horizontal distances
     finalDist = sqrt(finalHorizDist ** 2 + finalVertDist ** 2)
-    terrainAlt = parseGeoTIFF.getAltFromLatLon(curY, curX, xParams, yParams, elevationData)
+    terrainAlt = parseGeoTIFF.getAltFromLatLon(
+        curY, curX, xParams, yParams, elevationData)
     terrainAlt = decimal.Decimal(terrainAlt)
 
-    return((finalDist, curY, curX, curZ, terrainAlt))
+    return ((finalDist, curY, curX, curZ, terrainAlt))
+
 
 """convert from azimuth notation (0 is up [+y], inc. clockwise) to
 math notation(0 is right [+x], inc. counter-clockwise)
@@ -342,6 +378,8 @@ Parameters
 azimuth : float
     an angle in radians, should be between 0 and 2pi
 """
+
+
 def azimuthToUnitCircleRad(azimuth):
     # reverse direction of increment
     direction = (-1 * azimuth)
@@ -349,6 +387,7 @@ def azimuthToUnitCircleRad(azimuth):
     direction += (0.5 * math.pi)
     direction = normalize(direction)
     return direction
+
 
 """if a given angle is not between 0 and 2pi,
 return the same angle in a number that is between 0 and 2pi (rad)
@@ -359,6 +398,8 @@ direction : float
     an angle in radians, in the set of all real numbers
 
 """
+
+
 def normalize(direction):
     # the following two routines are mutually-exclusive
     while (direction < 0):
@@ -367,6 +408,7 @@ def normalize(direction):
         direction -= 2 * math.pi
 
     return direction
+
 
 """Radius At Lat Lon
 Given a latitude and longitude, return the radius of the WGS84 Ellipsoid at that reference
@@ -381,11 +423,16 @@ lon : (float)
     geodetic longitude. assumed to be WGS84
 
 """
+
+
 def radius_at_lat_lon(lat, lon):
-    A = decimal.Decimal(6378137.0) # equatorial radius of WGS ellipsoid, in meters
-    B = decimal.Decimal(6356752.3) # polar radius of WGS ellipsoid, in meters
-    r = (A * A * decimal.Decimal(cos(lat))) ** 2 + (B * B * decimal.Decimal(sin(lat))) ** 2 # numerator
-    r /= (A * decimal.Decimal(cos(lat))) ** 2 + (B * decimal.Decimal(sin(lat))) ** 2 # denominator
+    # equatorial radius of WGS ellipsoid, in meters
+    A = decimal.Decimal(6378137.0)
+    B = decimal.Decimal(6356752.3)  # polar radius of WGS ellipsoid, in meters
+    r = (A * A * decimal.Decimal(cos(lat))) ** 2 + \
+        (B * B * decimal.Decimal(sin(lat))) ** 2  # numerator
+    r /= (A * decimal.Decimal(cos(lat))) ** 2 + \
+        (B * decimal.Decimal(sin(lat))) ** 2  # denominator
     r = r ** (decimal.Decimal(0.5))  # square root
     return r
 
@@ -411,13 +458,14 @@ azimuth : float
 alt : float
     the approximate altitude, added to the radius of the great circle
 """
+
+
 def inverse_haversine(point, distance, azimuth, alt):
     if distance < 0.0:
         # reverse direction and make distance a positive number
         return inverse_haversine(point, -distance, normalize(azimuth + math.pi), alt)
     lat, lon = point
     lat, lon = map(math.radians, (lat, lon))
-
 
     d = decimal.Decimal(distance)
     # r = 6371000 + alt # average radius of earth + altitude # Old, bad
@@ -426,15 +474,18 @@ def inverse_haversine(point, distance, azimuth, alt):
     #     R(f)^2 = ( (a^2 cos(f))^2 + (b^2 sin(f))^2 ) / ( (a cos(f))^2 + (b sin(f))^2 )
 
     r = radius_at_lat_lon(lat, lon)
-    r = r + alt # actual height above or below idealized ellipsoid
+    r = r + alt  # actual height above or below idealized ellipsoid
 
     brng = azimuth
 
-    return_lat = asin(sin(lat) * cos(d / r) + cos(lat) * sin(d / r) * cos(brng))
-    return_lon = lon + atan2(sin(brng) * sin(d / r) * cos(lat), cos(d / r) - sin(lat) * sin(return_lat))
+    return_lat = asin(sin(lat) * cos(d / r) + cos(lat)
+                      * sin(d / r) * cos(brng))
+    return_lon = lon + atan2(sin(brng) * sin(d / r) *
+                             cos(lat), cos(d / r) - sin(lat) * sin(return_lat))
 
     return_lat, return_lon = map(math.degrees, (return_lat, return_lon))
     return return_lat, return_lon
+
 
 """Haversine formula
 via stackoverflow.com/a/4913653
@@ -457,6 +508,8 @@ alt : float
     the approximate altitude, added to the radius of the great circle
 
 """
+
+
 def haversine(lon1, lat1, lon2, lat2, alt):
     """
     Calculate the great circle distance in kilometers between two points
@@ -473,8 +526,10 @@ def haversine(lon1, lat1, lon2, lat2, alt):
     c = decimal.Decimal(c)
     # en.wikipedia.org/wiki/Earth_radius
     r = radius_at_lat_lon((lat1+lat2)/2, (lon1+lon2)/2)
-    r = r + decimal.Decimal(alt) # actual height above or below idealized ellipsoid
+    # actual height above or below idealized ellipsoid
+    r = r + decimal.Decimal(alt)
     return c * r
+
 
 """takes two lat/lon pairs (a start A and a destination B) and finds the heading of the shortest direction of travel from A to B
 Note: this function will work with Geodetic coords of any ellipsoid (as long as both pairs' ellipsoid are the same)
@@ -493,11 +548,14 @@ lat2 : float
     latitude of the second point
 
 """
+
+
 def haversine_bearing(lon1, lat1, lon2, lat2):
     dLon = (lon2 - lon1)
     x = math.cos(math.radians(lat2)) * math.sin(math.radians(dLon))
-    y = math.cos(math.radians(lat1)) * math.sin(math.radians(lat2)) - math.sin(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.cos(math.radians(dLon))
-    brng = math.atan2(x,y) # arguments intentionally swapped out of order
+    y = math.cos(math.radians(lat1)) * math.sin(math.radians(lat2)) - math.sin(
+        math.radians(lat1)) * math.cos(math.radians(lat2)) * math.cos(math.radians(dLon))
+    brng = math.atan2(x, y)  # arguments intentionally swapped out of order
     brng = normalize(brng)
     brng = math.degrees(brng)
 
@@ -517,6 +575,8 @@ Lat: float
 Lon: float
     A longitude, positive or negative, in degrees
 """
+
+
 def decimalToDegreeMinuteSecond(Lat, Lon):
 
     split_degx = math.modf(Lon)
@@ -532,13 +592,13 @@ def decimalToDegreeMinuteSecond(Lat, Lon):
     # multiply the decimal part of the split above by 60 to get the seconds
     # 0.868 x 60 = 52.08, round excess decimal places to 2 places
     # abs() absoulte value - no negative
-    seconds_x = abs(round(math.modf(split_degx[0] * 60)[0] * 60,2))
+    seconds_x = abs(round(math.modf(split_degx[0] * 60)[0] * 60, 2))
 
     # repeat for Lat
     split_degy = math.modf(Lat)
     degrees_y = int(split_degy[1])
     minutes_y = abs(int(math.modf(split_degy[0] * 60)[1]))
-    seconds_y = abs(round(math.modf(split_degy[0] * 60)[0] * 60,2))
+    seconds_y = abs(round(math.modf(split_degy[0] * 60)[0] * 60, 2))
 
     # account for E/W & N/S
     if degrees_x < 0:
@@ -552,10 +612,13 @@ def decimalToDegreeMinuteSecond(Lat, Lon):
         NorS = "N"
 
     # abs() remove negative from degrees, was only needed for if-else above
-    latDMS = str(abs(degrees_y)) + "° " + str(minutes_y) + "' " + str(seconds_y) + "\" " + NorS
-    lonDMS = str(abs(degrees_x)) + "° " + str(minutes_x) + "' " + str(seconds_x) + "\" " + EorW
+    latDMS = str(abs(degrees_y)) + "° " + str(minutes_y) + \
+        "' " + str(seconds_y) + "\" " + NorS
+    lonDMS = str(abs(degrees_x)) + "° " + str(minutes_x) + \
+        "' " + str(seconds_x) + "\" " + EorW
 
     return (latDMS, lonDMS)
+
 
 """takes a Gauss Krüger zone, northing, and easting; returns a str formatted for printout
 
@@ -572,16 +635,18 @@ easting : int
 SK42Alt : int
     an integer number representing the 𝚫altitude (in meters) from the surface of the 1942 Krassowsky ellipsoid
 """
-def strFormatSK42GK(GK_zone, northing, easting, SK42Alt) :
+
+
+def strFormatSK42GK(GK_zone, northing, easting, SK42Alt):
     northing, easting = round(northing), round(easting)
-    SK42_N_GK_10k_Grid  = (northing % 100000)
+    SK42_N_GK_10k_Grid = (northing % 100000)
     SK42_E_GK_10k_Grid = (easting % 100000)
 
     if os.name != 'nt':
         ANSI_start_underline = "\033[4m"
         ANSI_end_underline = "\033[0;0m"
     else:
-        ANSI_start_underline = "" # ANSI codes don't work on Windows, do nothing
+        ANSI_start_underline = ""  # ANSI codes don't work on Windows, do nothing
         ANSI_end_underline = ""
 
     outstr = ""
@@ -612,6 +677,7 @@ def strFormatSK42GK(GK_zone, northing, easting, SK42Alt) :
     outstr += f'{SK42Alt}'
     outstr += ANSI_end_underline
     return outstr
+
 
 if __name__ == "__main__":
     getTarget()
