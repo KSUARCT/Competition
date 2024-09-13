@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#/usr/bin/env python3
 
 import socket
 import tkinter as tk
@@ -10,7 +10,7 @@ import math
 from pymavlink import mavutil
 from openAthena import *
 
-mavDevice = mavutil.mavlink_connection('udp:COM6:9600')
+mavDevice = mavutil.mavlink_connection('/dev/ttyAMA0:57600')
 
 # generate Lat/Long Frame
 
@@ -130,13 +130,13 @@ def target_endpoint(lat, long, target_label):
         entry.delete("0", tk.END)  # Clear existing text
 
         # sends request for parameters
-        param_dump = requests.get("http://localhost:56781/mavlink/")
-        parameters = json.loads(param_dump)
-        altitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"][
-            "msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
+        #aram_dump = requests.get("http://localhost:56781/mavlink/")
+        #arameters = param_dump.json()
+        #ltitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"][
+        #  "msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
 
-        mavDevice.mav.param_request_list_send(
-            mavDevice.target_system, mavDevice.target_component)
+        #avDevice.mav.param_request_list_send(
+        #   mavDevice.target_system, mavDevice.target_component)
 
         # pulls altitude from mavlink
        #mavAlt = mavDevice.recv_match(type='ALT', blocking=True)
@@ -160,10 +160,15 @@ def target_endpoint(lat, long, target_label):
 
         # print(altitude + ' ' + rollAngle + ' ' + theta + ' ' + azimuth)
 
-        latitude, longitude, targetX, targetY = response["data"]["latitude"], response[
-            "data"]["longitude"], response["data"]["target_X"], response["data"]["target_Y"]
-        azimuth = math.Float(azimuth) + 90
-        setCamera(21, 1280, 1024, 0, 0, 0, 0, 0, 1, "lakeland.tif")
+        latitude, longitude, targetX, targetY, altitude, azimuth, rollAngle, theta = response["data"]["latitude"], response[
+                "data"]["longitude"], response["data"]["target_X"], response["data"]["target_Y"], response["data"]["altitude"], response["data"]["azimuth"], response["data"]["rollAngle"], response["data"]["theta"
+        azimuth = math.degrees(azimuth)
+        theta = math.degrees(theta) + 90
+        azimuth = float(azimuth)
+        altitude = altitude / .3048 % 1
+        altitude = altitude
+        print(latitude, longitude, targetX, targetY, azimuth, altitude, theta, rollAngle)
+        setCamera(25,1280, 1024, 0, 0, 0, 0, 0, 1, "lakeland2.tif")
         # OpenAthena stuff(use response payload to compute below)
         tarLat, tarLong, alt, terAlt = calcCoord(
             latitude, longitude, altitude, azimuth, theta, targetX, targetY, rollAngle)

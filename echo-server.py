@@ -6,15 +6,17 @@ import json
 import random
 import subprocess
 import serial
+import requests
 from color_circles import *
 from ublox_gps import UbloxGps
-
+from pymavlink import mavutil
+#mavDevice = mavutil.mavlink_connection('/dev/tty1')
 HOST = "0.0.0.0"  # Standard loopback interface address (localhost)
 PORT = 65438  # Port to listen on (non-privileged ports are > 1023)
-BASE_STATION_ADDRESS = "10.0.0.2"  # U-center NTRIP server address
+BASE_STATION_ADDRESS = "10.0.0.6"  # U-center NTRIP server address
 
 # establish connection with GPS module stream
-serial_port = serial.Serial('/dev/ttyS0', baudrate=38400, timeout=1)
+serial_port = serial.Serial('/dev/ttyS0', baudrate=38400, timeout=10)
 gps = UbloxGps(serial_port)
 
 TARGET_COLOR = ""
@@ -35,9 +37,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:  # initialize TCP S
                     # Store target color
                     TARGET_COLOR = request_json["payload"]["color"]
                     target_pixelX, target_pixelY = color_circles(TARGET_COLOR)
+                    target_pixelX, target_pixelY = float(target_pixelX), float(target_pixelY)
                     # LOAD AI DATA HERE
                     #target_pixelX = 2000
                     #target_pixelY = 1125
+                    print(request)
+                  #r#r# param_dump = requests.get("http://10.0.0.1:56781/mavlink/")
+                  # parameters = param_dump.json()
+                  # altitude, rollAngle, theta, azimuth = parameters["VFR_HUD"]["msg"]["alt"], parameters["ATTITUDE"]["msg"]["roll"], parameters["ATTITUDE"]["msg"]["pitch"], parameters["VFR_HUD"]["msg"]["heading"]
+
 
                     # Get current coordinates after finding target
                     geo = gps.geo_coords()
@@ -45,8 +53,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:  # initialize TCP S
                     longitude = geo.lon
 
                     # LOAD GPS DATA HERE
-                    # latitude = 33.837189
-                    # longitude = -84.53877
+                   # latitude = 28.0875968
+                   # longitude = -81.9711201
 
                     # Create response with coordinates and pixels
                     response = {
